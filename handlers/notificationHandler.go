@@ -7,17 +7,6 @@ import (
 	"net/http"
 )
 
-//	type NotificaionBody struct {
-//		UserID           int    `json:"user_id"`
-//		UserToNotifying  int    `json:"user_to_notifying"`
-//		Notification     string `json:"notification"`
-//		NotificationType string `json:"notification_type"`
-//		NotificationDate string `json:"notification_date"`
-//		Read             bool   `json:"read"`
-//		PostID           int    `json:"post_id"`
-//		CommentID        int    `json:"comment_id"`
-//	}
-
 type NotificaionBody struct {
 	NotificationID   int    `json:"notification_id"`
 	UserID           int    `json:"user_id"`
