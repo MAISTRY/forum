@@ -26,7 +26,6 @@ func CheckAuthHandler(w http.ResponseWriter, r *http.Request) {
             "authenticated": false,
             "privilege": %d}`, privilege)
 
-		// fmt.Println(jsonResp)
 		w.Write([]byte(jsonResp))
 		return
 	}
@@ -41,7 +40,6 @@ func CheckAuthHandler(w http.ResponseWriter, r *http.Request) {
         "authenticated": true,
         "privilege": %d}`, privilege)
 
-	// fmt.Println(jsonResp)
 	w.Write([]byte(jsonResp))
 }
 
@@ -131,6 +129,5 @@ func isValidSession(sessionID string) bool {
 		return false
 	}
 
-	// fmt.Println("Session is valid.")
 	return true
 }
