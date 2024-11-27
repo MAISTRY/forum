@@ -54,6 +54,6 @@ This is a simple single-paged web forum application built with Go, javascript, S
 
 [@mmahmooda AKA:KASIKO](https://learn.reboot01.com/git/mmahmooda)
 
-[@alimarhoon AKA:NBX](https://learn.reboot01.com/alimarhoon)
+[@alimarhoon AKA:NBX](https://learn.reboot01.com/git/alimarhoon)
 
-[@malmannai AKA:mvniraa](https://learn.reboot01.com/malmannai)
+[@malmannai AKA:mvniraa](https://learn.reboot01.com/git/malmannai)
