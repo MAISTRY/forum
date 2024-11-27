@@ -1,0 +1,203 @@
+.pageContainer {
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  min-height: 70vh;
+  overflow: auto;
+}
+
+.form-container {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 0.625rem 1.5rem rgba(0, 0, 0, 0.233);
+  width: 100%;
+  max-width: 28rem;
+}
+
+.form-header {
+  display: flex;
+  justify-content: center;  
+  align-items: center;
+  margin-bottom: 1.875rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, #7700ff 80%, #460075 100%);
+  -webkit-background-clip: text;
+  background-clip: transparent;
+  -webkit-text-fill-color: transparent;
+  -webkit-animation: none !important;
+  animation: none !important;
+}
+
+.form-group {
+  margin-bottom: 1.2rem;
+  position: relative;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.6rem 0;
+  border: none;
+  border-bottom: 2px solid #ccc;
+  outline: none;
+  transition: border-color 0.3s;
+  font-size: 1rem;
+}
+
+.form-group :hover {
+  border-color: #460075;
+}
+
+.form-group input:focus {
+  border-color: #9900ff;
+}
+
+.sub-name {
+  display: flex;
+  justify-content: space-between;
+}
+
+.gap {
+  padding-right: 0.8rem;
+}
+
+.Malecheckbox, .FeMalecheckbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+}
+
+.Malecheckbox input:checked {
+  border-color: rgb(0, 110, 255);
+  background-color: rgb(0, 110, 255 , 0.493);
+}
+
+.FeMalecheckbox input:checked {
+  border-color: rgb(245, 0, 204);
+  background-color: rgb(245, 0, 204, 0.493);
+}
+
+input[type="radio"] {
+  appearance: none;
+  width: 1.5rem;
+  height: 1rem;
+  border: 2px solid #555;
+  border-radius: 0.3rem;
+  outline: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+label {
+  cursor: pointer;
+  color: #333;
+  transition: color 0.2s ease;
+}
+
+.gender {
+  margin-bottom: 1rem;
+}
+
+.submit-button {
+  width: 100%;
+  padding: 1rem;
+  background: #9900ff;
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.submit-button:hover {
+  background: #460075;
+}
+
+.Loginbutton {
+  background-color: rgb(255, 17, 0);
+  margin-top: 0.3rem !important;
+}
+
+.Loginbutton:hover {
+  background-color: rgb(124, 0, 0);
+}
+
+.sign-in-text {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #333;
+  text-align: center;
+}
+.sign-in-text a {
+  color: #0062ff;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* START github and google buttons*/
+.oauth-buttons {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.google-btn {
+  background: #4285f4;
+}
+
+.google-btn:hover {
+  background: #357ae8;
+}
+
+.github-btn {
+  background: #444;
+}
+
+.github-btn:hover {
+  background: #666;
+}
+
+.oauth-buttons button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+}
+
+.oauth-buttons img {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-right: 0.5rem;
+}
+.or-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 10px 0;
+}
+.or-divider hr {
+  flex: 1;
+  border: none;
+  border-top: 1px solid #ccc;
+}
+.or-divider hr.left {
+  margin-right: 10px;
+}
+.or-divider hr.right {
+  margin-left: 10px;
+}
+.or-divider span {
+  padding: 0 10px;
+  color: #666;
+}
+/* END github and google buttons*/
