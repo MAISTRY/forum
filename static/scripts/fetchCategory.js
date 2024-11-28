@@ -20,6 +20,7 @@ function loadCategories() {
                 403: 'Forbidden - You do not have permission to access this resource.',
                 404: 'Not Found - The requested resource was not found.',
                 405: 'Method Not Allowed - The action is not supported.',
+                429: 'Too Many Requests - Please try again later.',
                 500: 'Internal Server Error - Please try again later.',
                 502: 'Bad Gateway - The server received an invalid response.',
                 503: 'Service Unavailable - The server is temporarily unavailable.',
