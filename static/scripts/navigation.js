@@ -17,8 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 logoutButtons.forEach(section => section.classList.remove('deactive'));
 
                 privilage.forEach(section => section.classList.remove('disabled-link'));
-                if (!validPages.includes('Createpost')) {
-                    validPages.push('Createpost');
+                if (!validPages.includes('Createpost','Profile','Created','Liked','Disliked')) {
+                    validPages.push('Createpost','Profile','Created','Liked','Disliked');
                 }
                 
             } else if (data.authenticated && data.privilege === 2) {
@@ -104,6 +104,9 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log("Posts loaded, applying handlers...");
         } else if (page === 'Categories') {
             loadCategories();
+            console.log("Categories loaded, applying handlers...");
+        } else if (page === 'Profile') {
+            loadProfileData();
             console.log("Categories loaded, applying handlers...");
         }
     }

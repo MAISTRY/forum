@@ -40,11 +40,17 @@
                 <i class="material-icons">chat</i>
                 <span>creat post</span>
             </a>
+            
+            <a class="text-item menu-item privilage disabled-link" data-has-Submenu="true" data-page="Profile" title="Profile">
+                <i class="material-icons">person</i>
+                <span>Profile <i class="material-icons">ss arrow_drop_down</i></span>
+            </a>
 
             <div class="sub-menu">
-                <div class="sub-menu-item">created posts</div>
-                <div class="sub-menu-item">liked posts</div>
-                <div class="sub-menu-item">comments</div>
+                <div class="sub-menu-item" data-page="Created">created posts</div>
+                <div class="sub-menu-item" data-page="Liked">liked posts</div>
+                <div class="sub-menu-item" data-page="Disliked">disliked posts</div>
+                <!-- <div class="sub-menu-item">comments</div> -->
             </div>
 
         </div>
@@ -255,6 +261,15 @@
             </div>
         </div>
 
+        <div id="Profile" class="deactive">
+            <h1 class="pageTitle">Created</h1> 
+            <div id="Created"></div>
+            <h1 class="pageTitle">Liked</h1> 
+            <div id="Liked"></div>
+            <h1 class="pageTitle">Disliked</h1> 
+            <div id="Disliked"></div>
+        </div>
+
         <div id="Error" class="deactive">
             <div class="pageContainer">
                 <div class="error-container">
@@ -276,5 +291,6 @@
     <script src="../scripts/fetchPosts.js"></script>
     <script src="../scripts/fetchComments.js"></script>
     <script src="../scripts/fetchCategory.js"></script>
+    <script src="../scripts/fetchProfile.js"></script>
 </body>
 </html>

@@ -134,7 +134,7 @@ function loadCategories() {
 
                 const likeButton = document.createElement('button');
                 likeButton.type = 'submit';
-                likeButton.classList.add('footer-buttons', 'post-button');
+                likeButton.classList.add('footer-buttons', 'post-button', 'like-buttons');
                 likeButton.title = 'Like';
 
                 const likeIcon = document.createElement('i');
@@ -164,7 +164,7 @@ function loadCategories() {
 
                 const dislikeButton = document.createElement('button');
                 dislikeButton.type = 'submit';
-                dislikeButton.classList.add('footer-buttons', 'post-button');
+                dislikeButton.classList.add('footer-buttons', 'post-button', 'dislike-buttons');
                 dislikeButton.title = 'Dislike';
 
                 const dislikeIcon = document.createElement('i');
@@ -182,7 +182,7 @@ function loadCategories() {
 
                 // Comment Button
                 const commentButton = document.createElement('a');
-                commentButton.classList.add('footer-buttons', 'post-button');
+                commentButton.classList.add('footer-buttons', 'post-button', 'comment-buttons');
                 commentButton.title = 'comment';
                 commentButton.onclick = () => {
                     commentButton.addEventListener('click', commentShow("Category",post.PostID));
