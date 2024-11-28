@@ -32,11 +32,11 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Profile Handler Called")
 	fmt.Printf("Request Method: %s\n", r.Method)
 
-	// if r.Method != http.MethodPost {
-	// 	fmt.Println("Method not allowed:", r.Method)
-	// 	http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-	// 	return
-	// }
+	if r.Method != http.MethodPost {
+		fmt.Println("Method not allowed:", r.Method)
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
 
 	userID := getUserIDFromSession(r)
 	fmt.Printf("User ID from session: %d\n", userID)
