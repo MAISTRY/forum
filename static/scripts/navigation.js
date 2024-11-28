@@ -80,7 +80,11 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('currentPage', pageId);
         } else {
             console.error(`Invalid page ID: ${pageId}`);
-            navigateToPage('Error');
+            if (validPages.includes('login')){
+                navigateToPage('Error');
+            } else {
+                window.location.replace('/login');
+            }
         }
     }
     window.navigateToPage = navigateToPage;
