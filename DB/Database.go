@@ -27,7 +27,7 @@ const (
         password TEXT NOT NULL,
 		gender TEXT NOT NULL CHECK(gender IN ('M', 'F')),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        privilege INTEGER NOT NULL CHECK(privilege >= 1 AND privilege <= 3)
+        privilege INTEGER NOT NULL CHECK(privilege >= 1 AND privilege <= 3) DEFAULT 1
 	);`
 	CreatePostTableQuery = `CREATE TABLE IF NOT EXISTS Post(
         PostID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -35,13 +35,15 @@ const (
 		PostDate TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		title TEXT NOT NULL,
         content TEXT NOT NULL,
-	    ImagePath TEXT,
+		ImagePath TEXT,
 		FOREIGN KEY (UserID) REFERENCES User(UserID) ON DELETE CASCADE
 	);`
 	CreateCategoryTableQuery = `CREATE TABLE IF NOT EXISTS Category(
 		CategoryID INTEGER PRIMARY KEY AUTOINCREMENT,
 		title TEXT NOT NULL,
-        description TEXT NOT NULL
+        description TEXT NOT NULL,
+        UserID INTEGER NOT NULL,
+		FOREIGN KEY (UserID) REFERENCES User(UserID) ON DELETE CASCADE
 	);`
 	CreatePostCategoryTableQuery = `CREATE TABLE IF NOT EXISTS PostCategory(
 		PostID INTEGER NOT NULL,
@@ -77,22 +79,16 @@ const (
 	CreateCommentLikeTableQuery = `CREATE TABLE IF NOT EXISTS CommentLike(
 		CommentID INTEGER NOT NULL,
 		UserID INTEGER NOT NULL,
-		PostID INTEGER NOT NULL,
-		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		PRIMARY KEY (CommentID, UserID),
 		FOREIGN KEY (CommentID) REFERENCES Comment(CommentID) ON DELETE CASCADE,
-		FOREIGN KEY (UserID) REFERENCES User(UserID) ON DELETE CASCADE,
-		FOREIGN KEY (PostID) REFERENCES Post(PostID) ON DELETE CASCADE
+		FOREIGN KEY (UserID) REFERENCES User(UserID) ON DELETE CASCADE
 	);`
 	CreateCommentDislikeTableQuery = `CREATE TABLE IF NOT EXISTS CommentDislike(
 		CommentID INTEGER NOT NULL,
 		UserID INTEGER NOT NULL,
-		PostID INTEGER NOT NULL,
-		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		PRIMARY KEY (CommentID, UserID),
 		FOREIGN KEY (CommentID) REFERENCES Comment(CommentID) ON DELETE CASCADE,
-		FOREIGN KEY (UserID) REFERENCES User(UserID) ON DELETE CASCADE,
-		FOREIGN KEY (PostID) REFERENCES Post(PostID) ON DELETE CASCADE
+		FOREIGN KEY (UserID) REFERENCES User(UserID) ON DELETE CASCADE
 	);`
 	// ! we change this way of storing the images
 	// CreatePostImageTableQuery = `CREATE TABLE IF NOT EXISTS PostImage(
@@ -122,7 +118,7 @@ const (
 		FOREIGN KEY (PostID) REFERENCES Post(PostID) ON DELETE SET NULL,
 		FOREIGN KEY (CommentID) REFERENCES Comment(CommentID) ON DELETE SET NULL
 	);`
-	sessionTableQuery = `CREATE TABLE IF NOT EXISTS Session (
+	sessionTableQuery = `CREATE TABLE IF NOT EXISTS Session(
 		session_id TEXT PRIMARY KEY,
 		user_id INTEGER,
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
