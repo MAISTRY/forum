@@ -22,8 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 adminOnly.forEach(section => section.classList.add('disabled-link'));
                 adminOnly.forEach(section => section.style.display = 'none');
                 moderatorOnly.forEach(section => section.style.display = 'none');
-                if (!validPages.includes('Createpost','Profile','Created','Liked','Disliked')) {
-                    validPages.push('Createpost','Profile','Created','Liked','Disliked');
+                if (!validPages.includes('Createpost','Profile','Created','Liked','Disliked','Activity')) {
+                    validPages.push('Createpost','Profile','Created','Liked','Disliked','Activity');
                 }
 
             } else if (data.authenticated && data.privilege === 2) {
@@ -34,8 +34,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 adminOnly.forEach(section => section.classList.add('disabled-link'));
                 adminOnly.forEach(section => section.style.display = 'none');
                 moderatorOnly.forEach(section => section.style.display = 'block');
-                if (!validPages.includes('Createpost','Profile','Created','Liked','Disliked')) {
-                    validPages.push('Createpost','Profile','Created','Liked','Disliked');
+                if (!validPages.includes('Createpost','Profile','Created','Liked','Disliked','Activity')) {
+                    validPages.push('Createpost','Profile','Created','Liked','Disliked','Activity');
                 }
 
             } else if (data.authenticated && data.privilege === 3) {
@@ -46,8 +46,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 adminOnly.forEach(section => section.classList.remove('disabled-link'));
                 adminOnly.forEach(section => section.style.display = 'block');
                 moderatorOnly.forEach(section => section.style.display = 'block');
-                if (!validPages.includes('Createpost','Profile','Created','Liked','Disliked','AdminDashboard')) {
-                    validPages.push('Createpost','Profile','Created','Liked','Disliked','AdminDashboard');
+                if (!validPages.includes('Createpost','Profile','Created','Liked','Disliked','Activity','AdminDashboard')) {
+                    validPages.push('Createpost','Profile','Created','Liked','Disliked','Activity','AdminDashboard');
                 }
 
             } else {
@@ -132,6 +132,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (page === 'Profile') {
             loadProfileData();
             console.log("Profile loaded, applying handlers...");
+        } else if (page === 'Activity') {
+            loadActivityData();
+            console.log("Activity page loaded, applying handlers...");
         } else if (page === 'AdminDashboard') {
             loadAdminDashboard();
             console.log("Admin dashboard loaded, applying handlers...");

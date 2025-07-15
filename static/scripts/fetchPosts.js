@@ -37,11 +37,11 @@ function loadPosts() {
                 }
                 return response.json();
             }).then(posts => {
-                return { posts, userPrivilege: authData.privilege || 0 };
+                return { posts, userPrivilege: authData.privilege || 0, currentUserId: authData.user_id || 0 };
             });
         })
         .then(data => {
-            const { posts, userPrivilege } = data;
+            const { posts, userPrivilege, currentUserId } = data;
             const fragment = document.createDocumentFragment();
 
             // Handle case when posts is null, undefined, or empty
@@ -180,19 +180,46 @@ function loadPosts() {
                 commentButton.appendChild(commentIcon);
                 commentButton.appendChild(commentCount);
 
-                // Delete Button (for admins and moderators only)
-                let deleteButton = null;
+                // Edit/Delete buttons for post owner
+                let editButton = null;
+                let userDeleteButton = null;
+                if (currentUserId === post.UserID) {
+                    // Edit button
+                    editButton = document.createElement('button');
+                    editButton.classList.add('footer-buttons', 'post-button', 'edit-btn');
+                    editButton.title = 'Edit Post';
+                    editButton.onclick = () => editPost(post.PostID);
+
+                    const editIcon = document.createElement('i');
+                    editIcon.classList.add('material-icons');
+                    editIcon.textContent = 'edit';
+                    editButton.appendChild(editIcon);
+
+                    // Delete button for owner
+                    userDeleteButton = document.createElement('button');
+                    userDeleteButton.classList.add('footer-buttons', 'post-button', 'delete-btn');
+                    userDeleteButton.title = 'Delete Post';
+                    userDeleteButton.onclick = () => deletePost(post.PostID);
+
+                    const userDeleteIcon = document.createElement('i');
+                    userDeleteIcon.classList.add('material-icons');
+                    userDeleteIcon.textContent = 'delete';
+                    userDeleteButton.appendChild(userDeleteIcon);
+                }
+
+                // Admin/Moderator Delete Button (for admins and moderators only)
+                let adminDeleteButton = null;
                 if (userPrivilege >= 2) { // Moderators (2) and Admins (3)
-                    deleteButton = document.createElement('button');
-                    deleteButton.classList.add('footer-buttons', 'post-button', 'delete-button');
-                    deleteButton.title = 'Delete Post';
-                    deleteButton.onclick = () => deletePost(post.PostID);
+                    adminDeleteButton = document.createElement('button');
+                    adminDeleteButton.classList.add('footer-buttons', 'post-button', 'delete-button');
+                    adminDeleteButton.title = 'Delete Post (Admin)';
+                    adminDeleteButton.onclick = () => adminDeletePost(post.PostID);
 
                     const deleteIcon = document.createElement('i');
                     deleteIcon.classList.add('material-icons');
                     deleteIcon.textContent = 'delete';
 
-                    deleteButton.appendChild(deleteIcon);
+                    adminDeleteButton.appendChild(deleteIcon);
                 }
 
                 // Report Button (for moderators only)
@@ -218,8 +245,14 @@ function loadPosts() {
                 buttonsContainer.appendChild(likeForm);
                 buttonsContainer.appendChild(dislikeForm);
                 buttonsContainer.appendChild(commentButton);
-                if (deleteButton) {
-                    buttonsContainer.appendChild(deleteButton);
+                if (editButton) {
+                    buttonsContainer.appendChild(editButton);
+                }
+                if (userDeleteButton) {
+                    buttonsContainer.appendChild(userDeleteButton);
+                }
+                if (adminDeleteButton) {
+                    buttonsContainer.appendChild(adminDeleteButton);
                 }
                 if (reportButton) {
                     buttonsContainer.appendChild(reportButton);
@@ -271,8 +304,38 @@ function loadPosts() {
     });
 }
 
-// Delete post function (for admins and moderators)
+// Delete post function (for post owners)
 async function deletePost(postId) {
+    if (!confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
+        return;
+    }
+
+    try {
+        const formData = new FormData();
+        formData.append('postId', postId);
+
+        const response = await fetch('/Data-UserDeletePost', {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert('Post deleted successfully');
+            location.reload();
+        } else {
+            alert(result.message || 'Failed to delete post');
+        }
+
+    } catch (error) {
+        console.error('Error deleting post:', error);
+        alert('Failed to delete post');
+    }
+}
+
+// Admin delete post function (for admins and moderators)
+async function adminDeletePost(postId) {
     if (!confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
         return;
     }

@@ -12,6 +12,7 @@ var (
 	commentsQuery = `
         SELECT
 			cm.CommentID,
+			cm.UserID,
             cm.content,
 			cm.CmtDate,
             u.username,
@@ -82,7 +83,7 @@ func CommentHandler(w http.ResponseWriter, r *http.Request) {
 	comments := []Comment{}
 	for commentRows.Next() {
 		var cmt Comment
-		if err := commentRows.Scan(&cmt.CmtID, &cmt.Content, &cmt.CmtDate, &cmt.Username, &cmt.Likes, &cmt.Dislikes); err != nil {
+		if err := commentRows.Scan(&cmt.CmtID, &cmt.UserID, &cmt.Content, &cmt.CmtDate, &cmt.Username, &cmt.Likes, &cmt.Dislikes); err != nil {
 			http.Error(w, "Error scanning comments", http.StatusInternalServerError)
 			return
 		}

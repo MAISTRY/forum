@@ -7,6 +7,7 @@ type Err struct {
 
 type Comment struct {
 	CmtID    int    `json:"CmtID"`
+	UserID   int    `json:"CmtUserID"`
 	Content  string `json:"CmtContent"`
 	CmtDate  string `json:"CmtDate"`
 	Username string `json:"CmtUsername"`

@@ -31,6 +31,7 @@ async function loadComments(destination, postId) {
         });
         const authData = await authResponse.json();
         const userPrivilege = authData.privilege || 0;
+        const currentUserId = authData.user_id || 0;
 
         // Then fetch comments
         const response = await fetch(`/Data-Comment?postid=${postId}`, {
@@ -146,19 +147,46 @@ async function loadComments(destination, postId) {
                 commentFooter.appendChild(likeForm);
                 commentFooter.appendChild(dislikeForm);
 
-                // Delete Button (for admins only)
+                // Edit/Delete buttons for comment owner
+                if (currentUserId === comment.CmtUserID) {
+                    // Edit button
+                    const editButton = document.createElement('button');
+                    editButton.classList.add('comment-edit-button', 'edit-btn');
+                    editButton.title = 'Edit Comment';
+                    editButton.onclick = () => editComment(comment.CmtID);
+
+                    const editIcon = document.createElement('i');
+                    editIcon.classList.add('material-icons');
+                    editIcon.textContent = 'edit';
+                    editButton.appendChild(editIcon);
+                    commentFooter.appendChild(editButton);
+
+                    // Delete button for owner
+                    const userDeleteButton = document.createElement('button');
+                    userDeleteButton.classList.add('comment-delete-button', 'delete-btn');
+                    userDeleteButton.title = 'Delete Comment';
+                    userDeleteButton.onclick = () => deleteComment(comment.CmtID);
+
+                    const userDeleteIcon = document.createElement('i');
+                    userDeleteIcon.classList.add('material-icons');
+                    userDeleteIcon.textContent = 'delete';
+                    userDeleteButton.appendChild(userDeleteIcon);
+                    commentFooter.appendChild(userDeleteButton);
+                }
+
+                // Admin Delete Button (for admins only)
                 if (userPrivilege === 3) { // Admin only
-                    const deleteButton = document.createElement('button');
-                    deleteButton.classList.add('comment-delete-button');
-                    deleteButton.title = 'Delete Comment';
-                    deleteButton.onclick = () => deleteComment(comment.CmtID);
+                    const adminDeleteButton = document.createElement('button');
+                    adminDeleteButton.classList.add('comment-delete-button');
+                    adminDeleteButton.title = 'Delete Comment (Admin)';
+                    adminDeleteButton.onclick = () => adminDeleteComment(comment.CmtID);
 
                     const deleteIcon = document.createElement('i');
                     deleteIcon.classList.add('material-icons');
                     deleteIcon.textContent = 'delete';
 
-                    deleteButton.appendChild(deleteIcon);
-                    commentFooter.appendChild(deleteButton);
+                    adminDeleteButton.appendChild(deleteIcon);
+                    commentFooter.appendChild(adminDeleteButton);
                 }
 
                 // Assemble Comment Card
@@ -390,19 +418,42 @@ async function handleCommentSubmission(event) {
             commentFooter.appendChild(likeForm);
             commentFooter.appendChild(dislikeForm);
 
-            // Delete Button (for admins only)
+            // Edit/Delete buttons for comment owner (newly created comment is always owned by current user)
+            const editButton = document.createElement('button');
+            editButton.classList.add('comment-edit-button', 'edit-btn');
+            editButton.title = 'Edit Comment';
+            editButton.onclick = () => editComment(data.CommentID);
+
+            const editIcon = document.createElement('i');
+            editIcon.classList.add('material-icons');
+            editIcon.textContent = 'edit';
+            editButton.appendChild(editIcon);
+            commentFooter.appendChild(editButton);
+
+            const userDeleteButton = document.createElement('button');
+            userDeleteButton.classList.add('comment-delete-button', 'delete-btn');
+            userDeleteButton.title = 'Delete Comment';
+            userDeleteButton.onclick = () => deleteComment(data.CommentID);
+
+            const userDeleteIcon = document.createElement('i');
+            userDeleteIcon.classList.add('material-icons');
+            userDeleteIcon.textContent = 'delete';
+            userDeleteButton.appendChild(userDeleteIcon);
+            commentFooter.appendChild(userDeleteButton);
+
+            // Admin Delete Button (for admins only)
             if (userPrivilege === 3) { // Admin only
-                const deleteButton = document.createElement('button');
-                deleteButton.classList.add('comment-delete-button');
-                deleteButton.title = 'Delete Comment';
-                deleteButton.onclick = () => deleteComment(data.CommentID);
+                const adminDeleteButton = document.createElement('button');
+                adminDeleteButton.classList.add('comment-delete-button');
+                adminDeleteButton.title = 'Delete Comment (Admin)';
+                adminDeleteButton.onclick = () => adminDeleteComment(data.CommentID);
 
                 const deleteIcon = document.createElement('i');
                 deleteIcon.classList.add('material-icons');
                 deleteIcon.textContent = 'delete';
 
-                deleteButton.appendChild(deleteIcon);
-                commentFooter.appendChild(deleteButton);
+                adminDeleteButton.appendChild(deleteIcon);
+                commentFooter.appendChild(adminDeleteButton);
             }
 
             // Assemble Comment Card
@@ -429,8 +480,38 @@ async function handleCommentSubmission(event) {
     }
 }
 
-// Delete comment function (for admins only)
+// Delete comment function (for comment owners)
 async function deleteComment(commentId) {
+    if (!confirm('Are you sure you want to delete this comment? This action cannot be undone.')) {
+        return;
+    }
+
+    try {
+        const formData = new FormData();
+        formData.append('commentId', commentId);
+
+        const response = await fetch('/Data-UserDeleteComment', {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert('Comment deleted successfully');
+            location.reload();
+        } else {
+            alert(result.message || 'Failed to delete comment');
+        }
+
+    } catch (error) {
+        console.error('Error deleting comment:', error);
+        alert('Failed to delete comment');
+    }
+}
+
+// Admin delete comment function (for admins only)
+async function adminDeleteComment(commentId) {
     if (!confirm('Are you sure you want to delete this comment? This action cannot be undone.')) {
         return;
     }

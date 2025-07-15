@@ -47,6 +47,12 @@
                 <span>Profile</span>
             </a>
 
+            <a class="text-item menu-item privilage disabled-link notifications" data-page="Activity" title="Activity & Notifications">
+                <i class="material-icons">notifications</i>
+                <span>Activity</span>
+                <div class="notification-badge" id="notification-badge" style="display: none;">0</div>
+            </a>
+
             <a class="text-item menu-item admin-only disabled-link" data-page="AdminDashboard" title="Admin Dashboard">
                 <i class="material-icons">admin_panel_settings</i>
                 <span>Admin Dashboard</span>
@@ -264,6 +270,54 @@
             <div id="Disliked"></div>
         </div>
 
+        <div id="Activity" class="deactive">
+            <h1 class="pageTitle">Activity & Notifications</h1>
+
+            <!-- Notifications Section -->
+            <div class="activity-section">
+                <h2>Notifications</h2>
+                <div id="notifications-container" class="notifications-container">
+                    <p style="text-align: center">Loading notifications...</p>
+                </div>
+            </div>
+
+            <!-- User Activity Section -->
+            <div class="activity-section">
+                <h2>My Activity</h2>
+
+                <!-- Created Posts -->
+                <div class="activity-subsection">
+                    <h3>My Posts</h3>
+                    <div id="activity-created-posts" class="activity-posts-container">
+                        <p style="text-align: center">Loading posts...</p>
+                    </div>
+                </div>
+
+                <!-- Comments Made -->
+                <div class="activity-subsection">
+                    <h3>My Comments</h3>
+                    <div id="activity-comments" class="activity-comments-container">
+                        <p style="text-align: center">Loading comments...</p>
+                    </div>
+                </div>
+
+                <!-- Likes/Dislikes Given -->
+                <div class="activity-subsection">
+                    <h3>Posts I Liked</h3>
+                    <div id="activity-liked-posts" class="activity-posts-container">
+                        <p style="text-align: center">Loading liked posts...</p>
+                    </div>
+                </div>
+
+                <div class="activity-subsection">
+                    <h3>Posts I Disliked</h3>
+                    <div id="activity-disliked-posts" class="activity-posts-container">
+                        <p style="text-align: center">Loading disliked posts...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div id="Error" class="deactive">
             <div class="pageContainer">
                 <div class="error-container">
@@ -358,6 +412,8 @@
     <script src="../scripts/fetchComments.js"></script>
     <script src="../scripts/fetchCategory.js"></script>
     <script src="../scripts/fetchProfile.js"></script>
+    <script src="../scripts/fetchActivity.js"></script>
+    <script src="../scripts/manageContent.js"></script>
     <script src="../scripts/AdminDashboard.js"></script>
     <script src="../scripts/PostFormHandler.js"></script>
     <script src="../scripts/LoadCategories.js"></script>

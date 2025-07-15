@@ -48,6 +48,7 @@ func Routes() http.Handler {
 	router.HandleFunc("/Data-CreatComment", CreatCommentHandler)
 
 	router.HandleFunc("/Data-Profile", ProfileHandler)
+	router.HandleFunc("/Data-Activity", ActivityHandler)
 	router.HandleFunc("/Data-Categories", CategoriesHandler)
 	router.HandleFunc("/Data-PublicCategories", PublicCategoriesHandler)
 
@@ -69,12 +70,24 @@ func Routes() http.Handler {
 	router.HandleFunc("/Data-AdminAddCategory", AdminAddCategoryHandler)
 	router.HandleFunc("/Data-AdminDeleteCategory", AdminDeleteCategoryHandler)
 
-	// Delete routes
+	// Edit routes
+	router.HandleFunc("/Data-EditPost", EditPostHandler)
+	router.HandleFunc("/Data-GetPostForEdit", GetPostForEditHandler)
+	router.HandleFunc("/Data-EditComment", EditCommentHandler)
+	router.HandleFunc("/Data-GetCommentForEdit", GetCommentForEditHandler)
+
+	// Delete routes (admin/moderator)
 	router.HandleFunc("/Data-DeletePost", DelPostHandler)
 	router.HandleFunc("/Data-DeleteComment", DeleteCommentHandler)
 
-	// ! for testing
-	router.HandleFunc("/test", NotificaionHandler)
+	// User delete routes (own content only)
+	router.HandleFunc("/Data-UserDeletePost", UserDeletePostHandler)
+	router.HandleFunc("/Data-UserDeleteComment", UserDeleteCommentHandler)
+
+	// Notification routes
+	router.HandleFunc("/Data-Notifications", NotificaionHandler)
+	router.HandleFunc("/Data-NotificationCount", NotificationCountHandler)
+	router.HandleFunc("/Data-MarkAsRead", MarkAsReadHandler)
 
 	router.Handle("/uploads/", http.StripPrefix("/uploads/", http.FileServer(http.Dir("./static/uploads"))))
 	router.Handle("/scripts/", http.StripPrefix("/scripts/", http.FileServer(http.Dir("./static/scripts"))))

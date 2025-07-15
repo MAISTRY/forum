@@ -21,21 +21,31 @@ function loadProfileData() {
         container.innerHTML = '<p style="text-align: center">Loading posts...</p>';
     });
 
-    // Fetch profile data
-    fetch('/Data-Profile', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-        }
+    // First get user authentication data
+    fetch("/auth/status", {
+        method: "GET",
+        credentials: "same-origin"
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`${response.status}: ${response.statusText || 'Unknown Error'}`);
-        }
-        return response.json();
+    .then(response => response.json())
+    .then(authData => {
+        // Then fetch profile data
+        return fetch('/Data-Profile', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        }).then(response => {
+            if (!response.ok) {
+                throw new Error(`${response.status}: ${response.statusText || 'Unknown Error'}`);
+            }
+            return response.json();
+        }).then(profileData => {
+            return { profileData, currentUserId: authData.user_id || 0 };
+        });
     })
-    .then(profileData => {
+    .then(data => {
+        const { profileData, currentUserId } = data;
         const createdPostsContainer = document.getElementById('Created');
         const likedPostsContainer = document.getElementById('Liked');
         const dislikedPostsContainer = document.getElementById('Disliked');
@@ -204,6 +214,33 @@ function loadProfileData() {
                 buttonsContainer.appendChild(likeForm);
                 buttonsContainer.appendChild(dislikeForm);
                 buttonsContainer.appendChild(commentButton);
+
+                // Add edit/delete buttons for created posts only
+                if (type === 'CreatedPosts' && currentUserId === post.UserID) {
+                    // Edit button
+                    const editButton = document.createElement('button');
+                    editButton.classList.add('footer-buttons', 'post-button', 'edit-btn');
+                    editButton.title = 'Edit Post';
+                    editButton.onclick = () => editPost(post.PostID);
+
+                    const editIcon = document.createElement('i');
+                    editIcon.classList.add('material-icons');
+                    editIcon.textContent = 'edit';
+                    editButton.appendChild(editIcon);
+                    buttonsContainer.appendChild(editButton);
+
+                    // Delete button
+                    const deleteButton = document.createElement('button');
+                    deleteButton.classList.add('footer-buttons', 'post-button', 'delete-btn');
+                    deleteButton.title = 'Delete Post';
+                    deleteButton.onclick = () => deletePost(post.PostID);
+
+                    const deleteIcon = document.createElement('i');
+                    deleteIcon.classList.add('material-icons');
+                    deleteIcon.textContent = 'delete';
+                    deleteButton.appendChild(deleteIcon);
+                    buttonsContainer.appendChild(deleteButton);
+                }
     
                 postFooter.appendChild(buttonsContainer);
                 postFooter.appendChild(postUser);
