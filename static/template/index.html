@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="../styles/HomePage.css">
+    <link rel="stylesheet" href="../styles/LoginPage.css">
+    <link rel="stylesheet" href="../styles/CreatePost.css">
+    <link rel="stylesheet" href="../styles/Comments.css">
+    <link rel="stylesheet" href="../styles/Posts.css">
+    <link rel="stylesheet" href="../styles/ErrorPage.css">
+    <link rel="stylesheet" href="../styles/AdminDashboard.css">
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--* https://fonts.google.com/icons?icon.size=24&icon.color=%23e8eaed -->
+
+    <script src="https://unpkg.com/htmx.org@1.9.3"></script>
+
+    <title>🐧Penguinity</title>
+</head>
+<body>
+    <!-- * SIDE BAR -->
+    <div class="sidebar" id="sidebar">
+        <div class="menu-name">
+            <img src="../images/glass.avif" alt="Avatar" class="logo">
+            <span>Penguinity</span>
+        </div> 
+        <div class="menu">
+            <a class="text-item menu-item" data-page="Home">
+                <i class="material-icons">home</i>
+                <span>Home</span>
+            </a>
+                       
+            <a class="text-item menu-item" data-page="Categories">
+                <i class="material-icons">forum</i>
+                <span>categories</span>
+            </a>
+
+            <a class="text-item menu-item privilage disabled-link" data-page="Createpost">
+                <i class="material-icons">chat</i>
+                <span>creat post</span>
+            </a>
+            
+            <a class="text-item menu-item privilage disabled-link" data-has-Submenu="true" data-page="Profile" title="Profile">
+                <i class="material-icons">person</i>
+                <span>Profile</span>
+            </a>
+
+            <a class="text-item menu-item admin-only disabled-link" data-page="AdminDashboard" title="Admin Dashboard">
+                <i class="material-icons">admin_panel_settings</i>
+                <span>Admin Dashboard</span>
+            </a>
+            <!-- <i class="material-icons">ss arrow_drop_down</i> -->
+           <!-- <div class="sub-menu">
+                <div class="sub-menu-item" data-page="Created">created posts</div>
+                <div class="sub-menu-item" data-page="Liked">liked posts</div>
+                <div class="sub-menu-item" data-page="Disliked">disliked posts</div>
+                 <div class="sub-menu-item">comments</div>
+            </div> -->
+
+        </div>
+        <!-- * END SIDE BAR -->
+
+        <!-- * MAIN BODY -->
+        <div class="bottom-menu">
+
+            <a class="text-item menu-item login-buttons" data-page="Login">
+                <i class="material-icons" >login</i>
+                <span >Login</span>
+            </a>
+            <a class="text-item menu-item logout-buttons" hx-post="/Data-userLogout">
+                <i class="material-icons" >logout</i>
+                <span >logout</span>
+            </a>
+            <a class="text-item list-menu" title="Hide menu">
+                <i class="material-icons">more_vert</i>
+                <span>Hide menu</span>
+            </a>
+
+        </div>
+    </div>
+
+    <!--!---------------- Main content goes here ------------------->
+
+    <div class="main-content">
+
+        <div id="Login" class="deactive">
+            <div class="pageContainer">
+                <div class="form-container">
+                    <div class="form-header">
+                        <h2>Login Form</h2>
+                    </div>
+                    <form class="modal-content animate" hx-post="/Data-userLogin" hx-target="#login_err_field" hx-swap="innerHTML">
+                        <div class="form-group">
+                            <input class="input-bigholder" type="text" placeholder="Enter your Username" name="username" required autocomplete="true">
+                        </div>
+                        <div class="form-group">
+                            <input class="input-bigholder" type="password" placeholder="Enter your Password" name="password" required autocomplete="true">
+                        </div>
+                        <div>
+                            <p id="login_err_field"></p>
+                        </div>
+                        <button class="submit-button" type="submit">Login</button>
+                        <div class="sign-in-text">
+                            Dont have an account? <a data-page="Register">create new account</a>
+                        </div>
+                        <!-- Google and Github login buttons-->
+                        <div class="oauth-buttons">
+                            <div class="or-divider">
+                                <hr class="left">
+                                <span>Or</span>
+                                <hr class="right">
+                            </div>
+                            <a onclick="window.location.href='/auth/google/login'" class="submit-button google-btn">
+                                <img src="../images/google-icon.png" alt="Google">
+                                Sign in with Google
+                            </a>
+                            
+                            <a onclick="window.location.href='/auth/github/login'" class="submit-button github-btn">
+                                <img src="../images/github-icon.png" alt="GitHub">
+                                Sign in with GitHub
+                            </a>
+                        </div>
+                        <!--End of G&G buttons-->  
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id="Register" class="deactive">
+            <!-- *** START OF THE REGISTRATION FORM *** -->
+            <div class="pageContainer">
+                <div class="form-container">
+                    <div class="form-header">
+                        <h2>Registration Form</h2>
+                    </div>
+                    <form class="modal-content animate" hx-post="/Data-userRegister" hx-target="#register_err_field" hx-swap="innerHTML">
+                        <div class="form-group">        
+                            <input type="text" id="newUsername" name="newUsername" placeholder="Username" required autocomplete="true">
+                        </div>
+                        <div class="form-group sub-name">
+                            <div class="gap">
+                                <input type="text" id="fistName" name="fistName" placeholder="First name" required autocomplete="true">
+                            </div>
+                            <div>
+                                <input type="text" id="lastName" name="lastName" placeholder="Last Name" required autocomplete="true">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" id="Email" name="Email" placeholder="Email" required autocomplete="true">
+                        </div>
+                        <div class="form-group">
+                            <input type="password" id="newPassword" name="newPassword" placeholder="Password" required autocomplete="true">
+                        </div>
+                        <div class="form-group">
+                            <input type="password" id="ConfirmNewPassword" name="ConfirmNewPassword" placeholder="Confirm Password" required autocomplete="true">
+                        </div>
+                        <div class="form-group">
+                            <div class="Malecheckbox gender">
+                                <label for="Male">Male</label>              
+                                <input type="radio" id="Male" name="gender" value="M">
+                            </div>
+                            <div class="FeMalecheckbox">
+                                <label for="Female">Female</label>
+                                <input type="radio" id="Female" name="gender" value="F">
+                            </div>    
+                        </div>
+                        <div>
+                            <p id="register_err_field"></p>
+                        </div>
+                        <button type="submit" class="submit-button">Create Account</button>
+                        <div class="sign-in-text">
+                            Already have an account? <a data-page="Login">Sign In</a>
+                        </div>
+                    </form>
+                </div>
+                <!-- *** END OF THE REGISTRATION FORM *** -->
+            </div>
+        </div>
+
+        <div id="Home" class="deactive">
+            <h1 class="pageTitle">Home</h1> 
+
+            <div id="posts-container">
+                <!-- Posts will be inserted here -->
+            </div>
+        </div>
+
+        <div id="Categories" class="deactive">
+            <h1 class="pageTitle">Categories</h1> 
+
+            <nav id="category-nav">
+                <!-- categorys will be inserted here -->
+            </nav>
+            <div id="category-container">
+                <!-- Posts will be inserted here -->
+            </div>
+    
+        </div>
+        
+        <div id="Createpost" class="deactive">
+            <div class="pageContainer">
+                <div class="form-container">
+                    <div class="form-header">
+                    <h2>Create new post</h2>
+                    </div>
+                    <form id="postForm" hx-post="/Data-CreatPost" hx-target="#CreatePost_err_field" hx-swap="innerHTML" enctype="multipart/form-data">
+                        <div class="form-post horizontal-multi-select">
+                            <p class="textlabel">Select one or more Category:</p>
+                            <div class="multi-select-options" id="categories">
+                                <!-- Categories will be loaded dynamically -->
+                                <div style="text-align: center; padding: 20px; color: #666; font-style: italic;">
+                                    Loading categories...
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-post">        
+                            <input type="text" name="title" placeholder="Post title"><br><br>
+                            <textarea 
+                                class="post-input" 
+                                id="content" 
+                                name="content" 
+                                placeholder="Add your post content..."
+                                required
+                                maxlength="1000" 
+                            ></textarea>
+                        </div>
+                        <div class="form-post">
+                            <label class="textlabel" for="fileUpload">Select a image to upload (optional):</label>
+                            <input type="file" id="fileUpload" name="image" accept=".jpg,.png,.jpeg">
+                        </div>
+                        <div>
+                            <p id="CreatePost_err_field"></p>
+                        </div>
+                        <button type="submit" class="submit-post">Create Post</button>        
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id="Profile" class="deactive">
+            <div class="profile-section">
+                <h2>Account Actions</h2>
+                <div id="moderation-request-section" class="user-only" style="display: none;">
+                    <button id="request-moderation-btn" onclick="requestModeration()">Request Moderator Role</button>
+                    <div id="moderation-status" style="margin-top: 10px;"></div>
+                </div>
+            </div>
+
+            <!-- Reports Section (for moderators only) -->
+            <div id="user-reports-section" class="profile-section moderator-only" style="display: none;">
+                <h2>My Reports</h2>
+                <div id="user-reports" class="user-reports-container">
+                    <!-- User reports will be loaded here -->
+                </div>
+            </div>
+
+            <h1 class="pageTitle">Created</h1>
+            <div id="Created"></div>
+            <h1 class="pageTitle">Liked</h1>
+            <div id="Liked"></div>
+            <h1 class="pageTitle">Disliked</h1>
+            <div id="Disliked"></div>
+        </div>
+
+        <div id="Error" class="deactive">
+            <div class="pageContainer">
+                <div class="error-container">
+                    <div class="error-header">
+                        <h2>Error</h2><h2 id="error-id">404</h2>                
+                    </div>
+                    <div class="error-post">
+                        <p id="error-message">Sorry, the page you requested was moved, removed, renamed or might never existed.</p>
+                        <button class="close-error" data-page="Home">Go Home</button>        
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="AdminDashboard" class="deactive">
+            <h1 class="pageTitle">Admin Dashboard</h1>
+
+            <!-- Statistics Section -->
+            <div class="admin-section">
+                <h2>Statistics</h2>
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <h3>Total Admins</h3>
+                        <span id="admin-count">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Moderators</h3>
+                        <span id="mod-count">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Posts</h3>
+                        <span id="post-count">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Comments</h3>
+                        <span id="comment-count">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Management Section -->
+            <div class="admin-section">
+                <h2>User Management</h2>
+                <div class="user-management">
+                    <div class="search-container">
+                        <input type="text" id="user-search" placeholder="Search users...">
+                        <button onclick="searchUsers()">Search</button>
+                    </div>
+                    <div id="users-list" class="users-container">
+                        <!-- Users will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category Management Section -->
+            <div class="admin-section">
+                <h2>Category Management</h2>
+                <div class="category-management">
+                    <div class="add-category-form">
+                        <input type="text" id="new-category-title" placeholder="Category title..." maxlength="50">
+                        <textarea id="new-category-description" placeholder="Category description..." maxlength="200"></textarea>
+                        <button onclick="addCategory()">Add Category</button>
+                    </div>
+                    <div id="categories-list" class="categories-container">
+                        <!-- Categories will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Moderation Requests Section -->
+            <div class="admin-section">
+                <h2>Moderation Requests</h2>
+                <div id="moderation-requests" class="requests-container">
+                    <!-- Moderation requests will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Post Reports Section -->
+            <div class="admin-section">
+                <h2>Post Reports</h2>
+                <div id="post-reports" class="reports-container">
+                    <!-- Post reports will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script src="../scripts/Page.js"></script>
+    <script src="../scripts/navigation.js"></script>
+    <script src="../scripts/utilities.js"></script>
+    <script src="../scripts/fetchPosts.js"></script>
+    <script src="../scripts/fetchComments.js"></script>
+    <script src="../scripts/fetchCategory.js"></script>
+    <script src="../scripts/fetchProfile.js"></script>
+    <script src="../scripts/AdminDashboard.js"></script>
+    <script src="../scripts/PostFormHandler.js"></script>
+    <script src="../scripts/LoadCategories.js"></script>
+</body>
+</html>
