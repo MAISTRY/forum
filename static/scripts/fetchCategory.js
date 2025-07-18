@@ -36,6 +36,12 @@ function loadCategories() {
         const fragment = document.createDocumentFragment();
         categoryNav.innerHTML = '';
 
+        // Handle case when categories is null, undefined, or empty
+        if (!categories || !Array.isArray(categories) || categories.length === 0) {
+            postsContainer.innerHTML = '<div class="empty-message" style="text-align: center; padding: 40px; color: #666; font-style: italic;">No categories or posts available</div>';
+            return;
+        }
+
         const showAll = document.createElement('button');
         showAll.className = 'category-button';
         showAll.type = 'button';
@@ -70,7 +76,15 @@ function loadCategories() {
             const postsList = document.createElement('div');
             postsList.className = 'posts-list';
 
-            category.Posts.forEach(post => {
+            // Handle case when category.Posts is null, undefined, or empty
+            if (!category.Posts || !Array.isArray(category.Posts) || category.Posts.length === 0) {
+                const emptyMessage = document.createElement('div');
+                emptyMessage.className = 'empty-message';
+                emptyMessage.style.cssText = 'text-align: center; padding: 20px; color: #666; font-style: italic;';
+                emptyMessage.textContent = 'No posts in this category';
+                postsList.appendChild(emptyMessage);
+            } else {
+                category.Posts.forEach(post => {
 
                 const postElement = document.createElement('div');
                 postElement.id = 'post-' + post.PostID;
@@ -83,12 +97,21 @@ function loadCategories() {
                 categorySpan.className = 'text-category';
                 categorySpan.textContent = 'Categories:';
                 postCategoryContainer.appendChild(categorySpan);
-            
-                post.Categories.forEach(CTG => {
-                    const categoryElement = document.createElement('a');
-                    categoryElement.textContent = CTG;
-                    postCategoryContainer.appendChild(categoryElement);
-                });
+
+                // Handle case when post.Categories is null or undefined
+                if (post.Categories && Array.isArray(post.Categories)) {
+                    post.Categories.forEach(CTG => {
+                        const categoryElement = document.createElement('a');
+                        categoryElement.textContent = CTG;
+                        postCategoryContainer.appendChild(categoryElement);
+                    });
+                } else {
+                    const noCategoryElement = document.createElement('span');
+                    noCategoryElement.textContent = 'No categories';
+                    noCategoryElement.style.color = '#666';
+                    noCategoryElement.style.fontStyle = 'italic';
+                    postCategoryContainer.appendChild(noCategoryElement);
+                }
                 
                 postElement.insertBefore(postCategoryContainer, postElement.firstChild);
                 
@@ -236,8 +259,9 @@ function loadCategories() {
                 postElement.appendChild(commentsContainer);
                 postsList.appendChild(postElement);
 
-            });
-            
+                });
+            }
+
             categoryElement.appendChild(postsList);
             fragment.appendChild(categoryElement);
         });

@@ -87,6 +87,29 @@
     margin-right: 4px;
 }
 
+.comment-delete-button {
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    padding: 4px 8px;
+    border-radius: 0.5rem;
+    color: #dc3545;
+    font-size: 0.875rem;
+    background: none;
+    border: none;
+    transition: all 0.2s ease;
+    margin-left: 8px;
+}
+
+.comment-delete-button:hover {
+    background-color: #f8d7da;
+    transform: translateY(-0.0625rem);
+}
+
+.comment-delete-button i {
+    font-size: 1rem;
+}
+
 .add-comment-form {
     margin-top: 20px;
     padding: 16px;

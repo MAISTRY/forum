@@ -67,6 +67,11 @@ func DelPost(db *sql.DB, postID string) error {
 		return fmt.Errorf("error deleting post: %v", err)
 	}
 
+	// Commit the transaction
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("error committing transaction: %v", err)
+	}
+
 	return nil
 
 }

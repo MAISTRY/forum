@@ -24,6 +24,16 @@ async function loadComments(destination, postId) {
     const commentsContainer = document.getElementById(`${destination}-comments-${postId}`);
 
     try {
+        // First get user privilege level
+        const authResponse = await fetch("/auth/status", {
+            method: "GET",
+            credentials: "same-origin"
+        });
+        const authData = await authResponse.json();
+        const userPrivilege = authData.privilege || 0;
+        const currentUserId = authData.user_id || 0;
+
+        // Then fetch comments
         const response = await fetch(`/Data-Comment?postid=${postId}`, {
             method: 'POST',
             headers: {
@@ -39,7 +49,14 @@ async function loadComments(destination, postId) {
         const commentsSection = document.createElement('div');
         commentsSection.classList.add('comments-section');
 
-                if (data && data.length > 0) {
+        // Handle case when data is null, undefined, or empty
+        if (!data || !Array.isArray(data) || data.length === 0) {
+            const noCommentsMessage = document.createElement('div');
+            noCommentsMessage.className = 'empty-message';
+            noCommentsMessage.style.cssText = 'text-align: center; padding: 20px; color: #666; font-style: italic;';
+            noCommentsMessage.textContent = 'No comments yet';
+            commentsSection.appendChild(noCommentsMessage);
+        } else {
             data.forEach(comment => {
                 // Create Comment Card
                 const commentCard = document.createElement('div');
@@ -129,6 +146,48 @@ async function loadComments(destination, postId) {
 
                 commentFooter.appendChild(likeForm);
                 commentFooter.appendChild(dislikeForm);
+
+                // Edit/Delete buttons for comment owner
+                if (currentUserId === comment.CmtUserID) {
+                    // Edit button
+                    const editButton = document.createElement('button');
+                    editButton.classList.add('comment-edit-button', 'edit-btn');
+                    editButton.title = 'Edit Comment';
+                    editButton.onclick = () => editComment(comment.CmtID);
+
+                    const editIcon = document.createElement('i');
+                    editIcon.classList.add('material-icons');
+                    editIcon.textContent = 'edit';
+                    editButton.appendChild(editIcon);
+                    commentFooter.appendChild(editButton);
+
+                    // Delete button for owner
+                    const userDeleteButton = document.createElement('button');
+                    userDeleteButton.classList.add('comment-delete-button', 'delete-btn');
+                    userDeleteButton.title = 'Delete Comment';
+                    userDeleteButton.onclick = () => deleteComment(comment.CmtID);
+
+                    const userDeleteIcon = document.createElement('i');
+                    userDeleteIcon.classList.add('material-icons');
+                    userDeleteIcon.textContent = 'delete';
+                    userDeleteButton.appendChild(userDeleteIcon);
+                    commentFooter.appendChild(userDeleteButton);
+                }
+
+                // Admin Delete Button (for admins only)
+                if (userPrivilege === 3) { // Admin only
+                    const adminDeleteButton = document.createElement('button');
+                    adminDeleteButton.classList.add('comment-delete-button');
+                    adminDeleteButton.title = 'Delete Comment (Admin)';
+                    adminDeleteButton.onclick = () => adminDeleteComment(comment.CmtID);
+
+                    const deleteIcon = document.createElement('i');
+                    deleteIcon.classList.add('material-icons');
+                    deleteIcon.textContent = 'delete';
+
+                    adminDeleteButton.appendChild(deleteIcon);
+                    commentFooter.appendChild(adminDeleteButton);
+                }
 
                 // Assemble Comment Card
                 commentCard.appendChild(commentHeader);
@@ -236,14 +295,21 @@ async function handleCommentInteraction(event) {
 }
 
 async function handleCommentSubmission(event) {
-    event.preventDefault(); 
-    
+    event.preventDefault();
+
     const form = event.currentTarget;
     const parentDiv = form.parentElement;
     const postId = form.querySelector('input[name="postId"]').value;
     const comment = form.querySelector('textarea[name="comment"]').value;
-    
+
     try {
+        // Get user privilege level
+        const authResponse = await fetch("/auth/status", {
+            method: "GET",
+            credentials: "same-origin"
+        });
+        const authData = await authResponse.json();
+        const userPrivilege = authData.privilege || 0;
         const response = await fetch(`/Data-CreatComment`, {
             method: 'POST',
             headers: {
@@ -352,6 +418,44 @@ async function handleCommentSubmission(event) {
             commentFooter.appendChild(likeForm);
             commentFooter.appendChild(dislikeForm);
 
+            // Edit/Delete buttons for comment owner (newly created comment is always owned by current user)
+            const editButton = document.createElement('button');
+            editButton.classList.add('comment-edit-button', 'edit-btn');
+            editButton.title = 'Edit Comment';
+            editButton.onclick = () => editComment(data.CommentID);
+
+            const editIcon = document.createElement('i');
+            editIcon.classList.add('material-icons');
+            editIcon.textContent = 'edit';
+            editButton.appendChild(editIcon);
+            commentFooter.appendChild(editButton);
+
+            const userDeleteButton = document.createElement('button');
+            userDeleteButton.classList.add('comment-delete-button', 'delete-btn');
+            userDeleteButton.title = 'Delete Comment';
+            userDeleteButton.onclick = () => deleteComment(data.CommentID);
+
+            const userDeleteIcon = document.createElement('i');
+            userDeleteIcon.classList.add('material-icons');
+            userDeleteIcon.textContent = 'delete';
+            userDeleteButton.appendChild(userDeleteIcon);
+            commentFooter.appendChild(userDeleteButton);
+
+            // Admin Delete Button (for admins only)
+            if (userPrivilege === 3) { // Admin only
+                const adminDeleteButton = document.createElement('button');
+                adminDeleteButton.classList.add('comment-delete-button');
+                adminDeleteButton.title = 'Delete Comment (Admin)';
+                adminDeleteButton.onclick = () => adminDeleteComment(data.CommentID);
+
+                const deleteIcon = document.createElement('i');
+                deleteIcon.classList.add('material-icons');
+                deleteIcon.textContent = 'delete';
+
+                adminDeleteButton.appendChild(deleteIcon);
+                commentFooter.appendChild(adminDeleteButton);
+            }
+
             // Assemble Comment Card
             commentCard.appendChild(commentHeader);
             commentCard.appendChild(commentContent);
@@ -373,5 +477,73 @@ async function handleCommentSubmission(event) {
                 errorElement.style.display = 'none';
             }, 3000);
         }
+    }
+}
+
+// Delete comment function (for comment owners)
+async function deleteComment(commentId) {
+    if (!confirm('Are you sure you want to delete this comment? This action cannot be undone.')) {
+        return;
+    }
+
+    try {
+        const formData = new FormData();
+        formData.append('commentId', commentId);
+
+        const response = await fetch('/Data-UserDeleteComment', {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert('Comment deleted successfully');
+            location.reload();
+        } else {
+            alert(result.message || 'Failed to delete comment');
+        }
+
+    } catch (error) {
+        console.error('Error deleting comment:', error);
+        alert('Failed to delete comment');
+    }
+}
+
+// Admin delete comment function (for admins only)
+async function adminDeleteComment(commentId) {
+    if (!confirm('Are you sure you want to delete this comment? This action cannot be undone.')) {
+        return;
+    }
+
+    try {
+        const response = await fetch('/Data-DeleteComment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: `commentId=${commentId}`
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to delete comment');
+        }
+
+        // Find and remove the comment from the DOM
+        const commentElement = document.getElementById(`comment-${commentId}`);
+        if (commentElement) {
+            const commentCard = commentElement.closest('.comment-card');
+            if (commentCard) {
+                commentCard.remove();
+            }
+        }
+
+        // Show success message (optional)
+        console.log('Comment deleted successfully');
+
+    } catch (error) {
+        console.error('Error deleting comment:', error);
+        alert('Failed to delete comment. Please try again.');
     }
 }

@@ -127,6 +127,33 @@ const (
 		FOREIGN KEY (user_id) REFERENCES User(UserID) ON DELETE CASCADE
 	);`
 
+	moderationRequestTableQuery = `CREATE TABLE IF NOT EXISTS ModerationRequest(
+		RequestID INTEGER PRIMARY KEY AUTOINCREMENT,
+		UserID INTEGER NOT NULL,
+		RequestDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+		Status TEXT NOT NULL CHECK(Status IN ('pending', 'approved', 'rejected')) DEFAULT 'pending',
+		AdminResponse TEXT,
+		AdminID INTEGER,
+		ResponseDate TIMESTAMP,
+		FOREIGN KEY (UserID) REFERENCES User(UserID) ON DELETE CASCADE,
+		FOREIGN KEY (AdminID) REFERENCES User(UserID) ON DELETE SET NULL
+	);`
+
+	postReportTableQuery = `CREATE TABLE IF NOT EXISTS PostReport(
+		ReportID INTEGER PRIMARY KEY AUTOINCREMENT,
+		PostID INTEGER NOT NULL,
+		ModeratorID INTEGER NOT NULL,
+		ReportDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+		Reason TEXT NOT NULL,
+		Status TEXT NOT NULL CHECK(Status IN ('pending', 'approved', 'rejected')) DEFAULT 'pending',
+		AdminResponse TEXT,
+		AdminID INTEGER,
+		ResponseDate TIMESTAMP,
+		FOREIGN KEY (PostID) REFERENCES Post(PostID) ON DELETE CASCADE,
+		FOREIGN KEY (ModeratorID) REFERENCES User(UserID) ON DELETE CASCADE,
+		FOREIGN KEY (AdminID) REFERENCES User(UserID) ON DELETE SET NULL
+	);`
+
 	// // ------------------------------------------------------------ // //
 
 	// ! WE WERE IDIOTS THINKING THAT WE GOTTA DO IT THIS WAY 👇💀💀
@@ -136,6 +163,43 @@ const (
 // InitDB initializes the database connection, creates the necessary tables, and performs any initial table filling.
 // It opens a new SQLite database connection, checks the connection, and then calls the CreateTables function to create the required tables.
 // If any errors occur during the database initialization or table creation, it logs a fatal error.
+var predefinedCategories = []string{"Technology", "Education", "Entertainment", "Travel", "Cars", "Sports", "Lifestyle", "Science", "Business"}
+
+func InsertDefaultUsers(db *sql.DB) {
+	defaultUsers := []struct {
+		username, firstname, lastname, email, password, gender string
+		privilege                                              int
+	}{
+		{"admin", "Admin", "User", "admin@gmail.com", "$2a$10$2COY2pQOxsPFA6.LrOsoj.0b7cEOmiD2q4pmHgdUI3Wf1fTBX5L86", "M", 3},       // * password: adminadmin
+		{"maistry", "Mujtaba", "User", "mujtaba@gmail.com", "$2a$10$SsAxMwWXMMbfT9ziRrpTU.2datBjmkVIoQKMj7.PLkh3daKSyg0sO", "M", 2}, // * password: mujtaba123
+		{"meow", "Mahmood", "User", "mahmood@gmail.com", "$2a$10$XDHVr9yLMQbdZ72S0Nig/e71zh8nYy1.FnY82kP4Ng16wAppryx4m", "M", 2},    // * password: mahmood123
+	}
+
+	for _, user := range defaultUsers {
+		_, err := db.Exec(`INSERT INTO User (username, firstname, lastname, email, password, gender, privilege) 
+			SELECT ?, ?, ?, ?, ?, ?, ?
+			WHERE NOT EXISTS (SELECT 1 FROM User WHERE username = ?)`,
+			user.username, user.firstname, user.lastname, user.email, user.password, user.gender, user.privilege, user.username)
+		if err != nil {
+			log.Printf("error inserting user %s: %v", user.username, err)
+		}
+	}
+	log.Println("Users Inserted successfully...")
+}
+func InsertDefaultCategories(db *sql.DB) {
+
+	for _, category := range predefinedCategories {
+		_, err := db.Exec(`INSERT INTO Category (title, description, UserID) 
+			SELECT ?, ?, ? 
+			WHERE NOT EXISTS (SELECT 1 FROM Category WHERE title = ?)`,
+			category, category+" description", 1, category)
+		if err != nil {
+			log.Printf("error inserting category %s: %v", category, err)
+		}
+	}
+	log.Println("Categorys Inserted successfully...")
+}
+
 func InitDB() {
 	db, err := sql.Open("sqlite3", "./meow.db")
 	if err != nil {
@@ -150,6 +214,8 @@ func InitDB() {
 
 	// * DONE
 	CreateTables(db)
+	InsertDefaultUsers(db)
+	InsertDefaultCategories(db)
 	// InitailTableFiller(db)
 }
 
@@ -197,6 +263,58 @@ func CreateTables(db *sql.DB) {
 	if _, err := db.Exec(sessionTableQuery); err != nil {
 		log.Fatalf("error creating the session table: %v", err)
 	}
+	if _, err := db.Exec(moderationRequestTableQuery); err != nil {
+		log.Fatalf("error creating the moderation request table: %v", err)
+	}
+	if _, err := db.Exec(postReportTableQuery); err != nil {
+		log.Fatalf("error creating the post report table: %v", err)
+	}
+
+	// Insert default categories if none exist
+	insertDefaultCategories(db)
 
 	log.Println("Tables created successfully...")
+}
+
+// insertDefaultCategories adds default categories if the Category table is empty
+func insertDefaultCategories(db *sql.DB) {
+	// Check if categories already exist
+	var count int
+	err := db.QueryRow("SELECT COUNT(*) FROM Category").Scan(&count)
+	if err != nil {
+		log.Printf("Error checking category count: %v", err)
+		return
+	}
+
+	// If categories already exist, don't add defaults
+	if count > 0 {
+		return
+	}
+
+	// Default categories as mentioned in the memories
+	defaultCategories := []struct {
+		Title       string
+		Description string
+	}{
+		{"Technology", "Discussions about technology, programming, and digital innovations"},
+		{"Education", "Educational content, learning resources, and academic discussions"},
+		{"Entertainment", "Movies, TV shows, games, music, and entertainment news"},
+		{"Travel", "Travel experiences, destinations, tips, and adventure stories"},
+		{"Cars", "Automotive discussions, car reviews, and vehicle maintenance"},
+		{"Sports", "Sports news, discussions, and athletic activities"},
+		{"Lifestyle", "Health, fitness, fashion, and general lifestyle topics"},
+		{"Science", "Scientific discoveries, research, and STEM discussions"},
+		{"Business", "Business news, entrepreneurship, and professional development"},
+	}
+
+	// Insert default categories (using UserID 1 as system/admin user)
+	for _, category := range defaultCategories {
+		_, err := db.Exec("INSERT INTO Category (title, description, UserID) VALUES (?, ?, 1)",
+			category.Title, category.Description)
+		if err != nil {
+			log.Printf("Error inserting default category %s: %v", category.Title, err)
+		}
+	}
+
+	log.Println("Default categories inserted successfully...")
 }

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"forum/DB"
+	"log"
 	"net/http"
 )
 
@@ -19,13 +20,26 @@ import (
 // The function uses the HX-Redirect header to perform the client-side redirect.
 func DelPostHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusOK)
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Check if user is admin or moderator
+	cookie, err := r.Cookie("sessionID")
+	if err != nil || !isValidSession(cookie.Value) {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	privilege, err := getPrivilege(cookie.Value)
+	if err != nil || privilege < 2 { // Must be moderator (2) or admin (3)
+		http.Error(w, "Unauthorized - Moderator or Admin access required", http.StatusUnauthorized)
 		return
 	}
 
 	db, err := sql.Open("sqlite3", "meow.db")
 	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusOK)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 	defer db.Close()
@@ -33,14 +47,19 @@ func DelPostHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	postID := r.FormValue("postId")
 
-	err = DB.DelPost(db, postID)
-	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusOK)
+	if postID == "" {
+		http.Error(w, "Post ID is required", http.StatusBadRequest)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	err = DB.DelPost(db, postID)
+	if err != nil {
+		log.Printf("Error deleting post: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 
-	w.Header().Set("HX-Redirect", "/")
-	fmt.Fprintf(w, `<html><head><meta http-equiv="refresh" content="0;url=/categories"></head></html>`)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, `{"success": true, "message": "Post deleted successfully"}`)
 }

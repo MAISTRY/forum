@@ -71,6 +71,9 @@ func CreatCommentHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Create notification for post owner
+	insertCommentNotification(db, userID, postID)
+
 	commnetObject := CommentedPost{
 		UserID:     intUserID,
 		UserName:   username,
@@ -84,4 +87,34 @@ func CreatCommentHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(commnetObject)
+}
+
+// insertCommentNotification creates a notification for the post owner when someone comments
+func insertCommentNotification(db *sql.DB, userID, postID string) {
+	stmt, err := db.Prepare(`
+        INSERT INTO Notification (UserID, UserToNotify, PostID, NotificationType)
+        VALUES (?,?,?,?);
+    `)
+	if err != nil {
+		log.Printf("Error preparing comment notification statement: %v\n", err)
+		return
+	}
+	defer stmt.Close()
+
+	postOwnerID, err := GetPostOwnerID(postID, db)
+	if err != nil {
+		log.Printf("Error getting post owner ID for comment notification: %v\n", err)
+		return
+	}
+
+	// Don't create notification if user is commenting on their own post
+	if userID == postOwnerID {
+		return
+	}
+
+	_, err = stmt.Exec(userID, postOwnerID, postID, "Comment")
+	if err != nil {
+		log.Printf("Error inserting comment notification: %v\n", err)
+		return
+	}
 }

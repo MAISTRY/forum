@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"forum/auth"
+	mdlware "forum/middleware"
 	"net/http"
 )
 
@@ -47,10 +48,46 @@ func Routes() http.Handler {
 	router.HandleFunc("/Data-CreatComment", CreatCommentHandler)
 
 	router.HandleFunc("/Data-Profile", ProfileHandler)
+	router.HandleFunc("/Data-Activity", ActivityHandler)
 	router.HandleFunc("/Data-Categories", CategoriesHandler)
+	router.HandleFunc("/Data-PublicCategories", PublicCategoriesHandler)
 
-	// ! for testing
-	router.HandleFunc("/test", NotificaionHandler)
+	// Admin routes
+	router.HandleFunc("/Data-AdminStats", AdminStatsHandler)
+	router.HandleFunc("/Data-AdminUsers", AdminUsersHandler)
+	router.HandleFunc("/Data-AdminPromoteUser", AdminPromoteUserHandler)
+	router.HandleFunc("/Data-AdminDemoteUser", AdminDemoteUserHandler)
+	router.HandleFunc("/Data-AdminModerationRequests", AdminModerationRequestsHandler)
+	router.HandleFunc("/Data-AdminRespondRequest", AdminRespondRequestHandler)
+
+	// Report routes
+	router.HandleFunc("/Data-ReportPost", ReportPostHandler)
+	router.HandleFunc("/Data-AdminReports", AdminReportsHandler)
+	router.HandleFunc("/Data-AdminRespondReport", AdminRespondReportHandler)
+	router.HandleFunc("/Data-UserReports", UserReportsHandler)
+	router.HandleFunc("/Data-CreateModerationRequest", CreateModerationRequestHandler)
+	router.HandleFunc("/Data-AdminCategories", AdminCategoriesHandler)
+	router.HandleFunc("/Data-AdminAddCategory", AdminAddCategoryHandler)
+	router.HandleFunc("/Data-AdminDeleteCategory", AdminDeleteCategoryHandler)
+
+	// Edit routes
+	router.HandleFunc("/Data-EditPost", EditPostHandler)
+	router.HandleFunc("/Data-GetPostForEdit", GetPostForEditHandler)
+	router.HandleFunc("/Data-EditComment", EditCommentHandler)
+	router.HandleFunc("/Data-GetCommentForEdit", GetCommentForEditHandler)
+
+	// Delete routes (admin/moderator)
+	router.HandleFunc("/Data-DeletePost", DelPostHandler)
+	router.HandleFunc("/Data-DeleteComment", DeleteCommentHandler)
+
+	// User delete routes (own content only)
+	router.HandleFunc("/Data-UserDeletePost", UserDeletePostHandler)
+	router.HandleFunc("/Data-UserDeleteComment", UserDeleteCommentHandler)
+
+	// Notification routes
+	router.HandleFunc("/Data-Notifications", NotificaionHandler)
+	router.HandleFunc("/Data-NotificationCount", NotificationCountHandler)
+	router.HandleFunc("/Data-MarkAsRead", MarkAsReadHandler)
 
 	router.Handle("/uploads/", http.StripPrefix("/uploads/", http.FileServer(http.Dir("./static/uploads"))))
 	router.Handle("/scripts/", http.StripPrefix("/scripts/", http.FileServer(http.Dir("./static/scripts"))))
@@ -58,6 +95,6 @@ func Routes() http.Handler {
 	router.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir("./static/images"))))
 
 	//// router.Handle("/Data-creatPost", middleware.AuthenticateUser(http.HandlerFunc(CreatePostHandler)))
-	// return mdlware.RateLimiter(router)
-	return router
+	return mdlware.RateLimiter(router)
+	// return router
 }

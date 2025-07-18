@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"time"
 )
 
 const (
@@ -51,53 +52,133 @@ func CreatePostHandler(w http.ResponseWriter, r *http.Request) {
 	categoriesFromForm := r.Form["categories"]
 
 	if title == "" {
-		http.Error(w, `The Title isn't present!!!`, http.StatusOK)
+		w.Header().Set("Content-Type", "application/json")
+		http.Error(w, `{"success": false, "message": "Post title is required"}`, http.StatusBadRequest)
 		return
 	}
 	if content == "" {
-		http.Error(w, `The Content isn't present!!!`, http.StatusOK)
+		w.Header().Set("Content-Type", "application/json")
+		http.Error(w, `{"success": false, "message": "Post content is required"}`, http.StatusBadRequest)
 		return
 	}
 	if len(categoriesFromForm) == 0 {
-		http.Error(w, `The Categories aren't present!!!`, http.StatusOK)
+		w.Header().Set("Content-Type", "application/json")
+		http.Error(w, `{"success": false, "message": "Please select at least one category"}`, http.StatusBadRequest)
 		return
+	}
+
+	// Handle duplicate post titles by adding a number
+	originalTitle := title
+	i := 1
+	for {
+		var existingCount int
+		duplicateQuery := `SELECT COUNT(*) FROM Post WHERE UserID = ? AND title = ?`
+		err = db.QueryRow(duplicateQuery, userID, title).Scan(&existingCount)
+		if err != nil {
+			w.Header().Set("Content-Type", "application/json")
+			http.Error(w, `{"success": false, "message": "Error checking for duplicate titles"}`, http.StatusInternalServerError)
+			return
+		}
+
+		if existingCount == 0 {
+			break // Title is unique, we can use it
+		}
+
+		// Title exists, add/increment number
+		title = fmt.Sprintf("%s %d", originalTitle, i)
+		i++
 	}
 
 	var imagePath string
 	file, fileHead, err := r.FormFile("image")
 	if err != nil {
-		fmt.Printf(`post without image!`)
+		// No image uploaded, this is fine
+		fmt.Printf("Post without image\n")
 	}
 	if file != nil {
+		defer file.Close()
+
+		// Validate file size (max 10MB)
+		const maxFileSize = 10 << 20 // 10MB
+		if fileHead.Size > maxFileSize {
+			w.Header().Set("Content-Type", "application/json")
+			http.Error(w, `{"success": false, "message": "Image file too large. Maximum size is 10MB."}`, http.StatusBadRequest)
+			return
+		}
+
+		// Validate file type
+		allowedTypes := map[string]bool{
+			"image/jpeg": true,
+			"image/jpg":  true,
+			"image/png":  true,
+		}
+
+		// Read first 512 bytes to detect content type
+		buffer := make([]byte, 512)
+		_, err = file.Read(buffer)
+		if err != nil {
+			w.Header().Set("Content-Type", "application/json")
+			http.Error(w, `{"success": false, "message": "Error reading image file"}`, http.StatusInternalServerError)
+			return
+		}
+
+		contentType := http.DetectContentType(buffer)
+		if !allowedTypes[contentType] {
+			w.Header().Set("Content-Type", "application/json")
+			http.Error(w, `{"success": false, "message": "Invalid file type. Only JPEG and PNG images are allowed."}`, http.StatusBadRequest)
+			return
+		}
+
+		// Reset file pointer to beginning
+		_, err = file.Seek(0, 0)
+		if err != nil {
+			w.Header().Set("Content-Type", "application/json")
+			http.Error(w, `{"success": false, "message": "Error reading file"}`, http.StatusInternalServerError)
+			return
+		}
+
 		filename := filepath.Base(fileHead.Filename)
+		// Remove any path separators from filename for security
+		filename = filepath.Base(filename)
+
+		// If filename is empty, generate one
+		if filename == "" || filename == "." {
+			filename = fmt.Sprintf("upload_%d.jpg", time.Now().Unix())
+		}
+
 		storePath := filepath.Join(uploadDir, filename)
 		imagePath = filepath.Join(dataDir, filename)
 
+		// Handle duplicate filenames by adding a number prefix
 		i := 1
-		for _, err := os.Stat(storePath); err == nil; i++ {
-			storePath = filepath.Join(uploadDir, fmt.Sprintf("%d_%s", i, filename))
-			imagePath = filepath.Join(imagePath, fmt.Sprintf("%d_%s", i, filename))
+		for {
+			if _, err := os.Stat(storePath); os.IsNotExist(err) {
+				break // File doesn't exist, we can use this name
+			}
+			newFilename := fmt.Sprintf("%d_%s", i, filename)
+			storePath = filepath.Join(uploadDir, newFilename)
+			imagePath = filepath.Join(dataDir, newFilename)
+			i++
 		}
 
+		// Create the file
 		filePlace, err := os.Create(storePath)
 		if err != nil {
+			w.Header().Set("Content-Type", "application/json")
 			http.Error(w, `{"success": false, "message": "Error saving image"}`, http.StatusInternalServerError)
 			return
 		}
 		defer filePlace.Close()
 
-		_, err = file.Seek(0, 0)
-		if err != nil {
-			http.Error(w, `{"success": false, "message": "Error reading file"}`, http.StatusInternalServerError)
-			return
-		}
-
+		// Copy file content
 		_, err = io.Copy(filePlace, file)
 		if err != nil {
+			w.Header().Set("Content-Type", "application/json")
 			http.Error(w, `{"success": false, "message": "Error writing file"}`, http.StatusInternalServerError)
 			return
 		}
 
+		fmt.Printf("Image saved successfully: %s\n", storePath)
 	}
 
 	UsrID, err := strconv.Atoi(userID)

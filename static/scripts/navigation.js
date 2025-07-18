@@ -11,28 +11,52 @@ document.addEventListener('DOMContentLoaded', () => {
         const loginButtons = document.querySelectorAll(".login-buttons");
         const logoutButtons = document.querySelectorAll(".logout-buttons");
         const privilage = document.querySelectorAll(".privilage");
-        
+        const adminOnly = document.querySelectorAll(".admin-only");
+        const moderatorOnly = document.querySelectorAll(".moderator-only");
+
             if (data.authenticated && data.privilege === 1) {
                 loginButtons.forEach(section => section.classList.add('deactive'));
                 logoutButtons.forEach(section => section.classList.remove('deactive'));
 
                 privilage.forEach(section => section.classList.remove('disabled-link'));
-                if (!validPages.includes('Createpost','Profile','Created','Liked','Disliked')) {
-                    validPages.push('Createpost','Profile','Created','Liked','Disliked');
+                adminOnly.forEach(section => section.classList.add('disabled-link'));
+                adminOnly.forEach(section => section.style.display = 'none');
+                moderatorOnly.forEach(section => section.style.display = 'none');
+                if (!validPages.includes('Createpost','Profile','Created','Liked','Disliked','Activity')) {
+                    validPages.push('Createpost','Profile','Created','Liked','Disliked','Activity');
                 }
-                
+
             } else if (data.authenticated && data.privilege === 2) {
                 loginButtons.forEach(section => section.classList.add('deactive'));
                 logoutButtons.forEach(section => section.classList.remove('deactive'));
+
+                privilage.forEach(section => section.classList.remove('disabled-link'));
+                adminOnly.forEach(section => section.classList.add('disabled-link'));
+                adminOnly.forEach(section => section.style.display = 'none');
+                moderatorOnly.forEach(section => section.style.display = 'block');
+                if (!validPages.includes('Createpost','Profile','Created','Liked','Disliked','Activity')) {
+                    validPages.push('Createpost','Profile','Created','Liked','Disliked','Activity');
+                }
 
             } else if (data.authenticated && data.privilege === 3) {
                 loginButtons.forEach(section => section.classList.add('deactive'));
                 logoutButtons.forEach(section => section.classList.remove('deactive'));
 
+                privilage.forEach(section => section.classList.remove('disabled-link'));
+                adminOnly.forEach(section => section.classList.remove('disabled-link'));
+                adminOnly.forEach(section => section.style.display = 'block');
+                moderatorOnly.forEach(section => section.style.display = 'block');
+                if (!validPages.includes('Createpost','Profile','Created','Liked','Disliked','Activity','AdminDashboard')) {
+                    validPages.push('Createpost','Profile','Created','Liked','Disliked','Activity','AdminDashboard');
+                }
+
             } else {
                 loginButtons.forEach(section => section.classList.remove('deactive'));
                 logoutButtons.forEach(section => section.classList.add('deactive'));
                 privilage.forEach(section => section.classList.add('disabled-link'));
+                adminOnly.forEach(section => section.classList.add('disabled-link'));
+                adminOnly.forEach(section => section.style.display = 'none');
+                moderatorOnly.forEach(section => section.style.display = 'none');
                 if (!validPages.includes('Login','Register')) {
                     validPages.push('Login','Register');
                 }
@@ -107,7 +131,18 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log("Categories loaded, applying handlers...");
         } else if (page === 'Profile') {
             loadProfileData();
-            console.log("Categories loaded, applying handlers...");
+            console.log("Profile loaded, applying handlers...");
+        } else if (page === 'Activity') {
+            loadActivityData();
+            console.log("Activity page loaded, applying handlers...");
+        } else if (page === 'AdminDashboard') {
+            loadAdminDashboard();
+            console.log("Admin dashboard loaded, applying handlers...");
+        } else if (page === 'Createpost') {
+            if (typeof loadCategoriesForForm === 'function') {
+                loadCategoriesForForm();
+            }
+            console.log("Create post page loaded, categories loaded...");
         }
     }
 });

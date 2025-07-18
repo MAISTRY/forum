@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="../styles/Comments.css">
     <link rel="stylesheet" href="../styles/Posts.css">
     <link rel="stylesheet" href="../styles/ErrorPage.css">
+    <link rel="stylesheet" href="../styles/AdminDashboard.css">
 
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!--* https://fonts.google.com/icons?icon.size=24&icon.color=%23e8eaed -->
@@ -43,15 +44,26 @@
             
             <a class="text-item menu-item privilage disabled-link" data-has-Submenu="true" data-page="Profile" title="Profile">
                 <i class="material-icons">person</i>
-                <span>Profile <i class="material-icons">ss arrow_drop_down</i></span>
+                <span>Profile</span>
             </a>
 
-            <div class="sub-menu">
+            <a class="text-item menu-item privilage disabled-link notifications" data-page="Activity" title="Activity & Notifications">
+                <i class="material-icons">notifications</i>
+                <span>Activity</span>
+                <div class="notification-badge" id="notification-badge" style="display: none;">0</div>
+            </a>
+
+            <a class="text-item menu-item admin-only disabled-link" data-page="AdminDashboard" title="Admin Dashboard">
+                <i class="material-icons">admin_panel_settings</i>
+                <span>Admin Dashboard</span>
+            </a>
+            <!-- <i class="material-icons">ss arrow_drop_down</i> -->
+           <!-- <div class="sub-menu">
                 <div class="sub-menu-item" data-page="Created">created posts</div>
                 <div class="sub-menu-item" data-page="Liked">liked posts</div>
                 <div class="sub-menu-item" data-page="Disliked">disliked posts</div>
-                <!-- <div class="sub-menu-item">comments</div> -->
-            </div>
+                 <div class="sub-menu-item">comments</div>
+            </div> -->
 
         </div>
         <!-- * END SIDE BAR -->
@@ -203,38 +215,10 @@
                         <div class="form-post horizontal-multi-select">
                             <p class="textlabel">Select one or more Category:</p>
                             <div class="multi-select-options" id="categories">
-                                <label class="multi-option">
-                                    <input type="checkbox" name="categories" value="Cars">
-                                    <span>Cars</span>
-                                </label>
-                                <label class="multi-option">
-                                    <input type="checkbox" name="categories" value="Games">
-                                    <span>Games</span>
-                                </label>
-                                <label class="multi-option">
-                                    <input type="checkbox" name="categories" value="ali">
-                                    <span>Ali</span>
-                                </label>
-                                <label class="multi-option">
-                                    <input type="checkbox" name="categories" value="bmw">
-                                    <span>BMW</span>
-                                </label>
-                                <label class="multi-option">
-                                    <input type="checkbox" name="categories" value="mahmood">
-                                    <span>Mahmood</span>
-                                </label>
-                                <label class="multi-option">
-                                    <input type="checkbox" name="categories" value="mujtaba">
-                                    <span>Mujtaba</span>
-                                </label>
-                                <label class="multi-option">
-                                    <input type="checkbox" name="categories" value="nissan">
-                                    <span>Nissan</span>
-                                </label>
-                                <label class="multi-option">
-                                    <input type="checkbox" name="categories" value="reboot">
-                                    <span>Reboot</span>
-                                </label>
+                                <!-- Categories will be loaded dynamically -->
+                                <div style="text-align: center; padding: 20px; color: #666; font-style: italic;">
+                                    Loading categories...
+                                </div>
                             </div>
                         </div>
                         <div class="form-post">        
@@ -262,12 +246,76 @@
         </div>
 
         <div id="Profile" class="deactive">
-            <h1 class="pageTitle">Created</h1> 
+            <div class="profile-section">
+                <h2>Account Actions</h2>
+                <div id="moderation-request-section" class="user-only" style="display: none;">
+                    <button id="request-moderation-btn" onclick="requestModeration()">Request Moderator Role</button>
+                    <div id="moderation-status" style="margin-top: 10px;"></div>
+                </div>
+            </div>
+
+            <!-- Reports Section (for moderators only) -->
+            <div id="user-reports-section" class="profile-section moderator-only" style="display: none;">
+                <h2>My Reports</h2>
+                <div id="user-reports" class="user-reports-container">
+                    <!-- User reports will be loaded here -->
+                </div>
+            </div>
+
+            <h1 class="pageTitle">Created</h1>
             <div id="Created"></div>
-            <h1 class="pageTitle">Liked</h1> 
+            <h1 class="pageTitle">Liked</h1>
             <div id="Liked"></div>
-            <h1 class="pageTitle">Disliked</h1> 
+            <h1 class="pageTitle">Disliked</h1>
             <div id="Disliked"></div>
+        </div>
+
+        <div id="Activity" class="deactive">
+            <h1 class="pageTitle">Activity & Notifications</h1>
+
+            <!-- Notifications Section -->
+            <div class="activity-section">
+                <h2>Notifications</h2>
+                <div id="notifications-container" class="notifications-container">
+                    <p style="text-align: center">Loading notifications...</p>
+                </div>
+            </div>
+
+            <!-- User Activity Section -->
+            <div class="activity-section">
+                <h2>My Activity</h2>
+
+                <!-- Created Posts -->
+                <div class="activity-subsection">
+                    <h3>My Posts</h3>
+                    <div id="activity-created-posts" class="activity-posts-container">
+                        <p style="text-align: center">Loading posts...</p>
+                    </div>
+                </div>
+
+                <!-- Comments Made -->
+                <div class="activity-subsection">
+                    <h3>My Comments</h3>
+                    <div id="activity-comments" class="activity-comments-container">
+                        <p style="text-align: center">Loading comments...</p>
+                    </div>
+                </div>
+
+                <!-- Likes/Dislikes Given -->
+                <div class="activity-subsection">
+                    <h3>Posts I Liked</h3>
+                    <div id="activity-liked-posts" class="activity-posts-container">
+                        <p style="text-align: center">Loading liked posts...</p>
+                    </div>
+                </div>
+
+                <div class="activity-subsection">
+                    <h3>Posts I Disliked</h3>
+                    <div id="activity-disliked-posts" class="activity-posts-container">
+                        <p style="text-align: center">Loading disliked posts...</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div id="Error" class="deactive">
@@ -284,6 +332,78 @@
             </div>
         </div>
 
+        <div id="AdminDashboard" class="deactive">
+            <h1 class="pageTitle">Admin Dashboard</h1>
+
+            <!-- Statistics Section -->
+            <div class="admin-section">
+                <h2>Statistics</h2>
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <h3>Total Admins</h3>
+                        <span id="admin-count">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Moderators</h3>
+                        <span id="mod-count">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Posts</h3>
+                        <span id="post-count">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Comments</h3>
+                        <span id="comment-count">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Management Section -->
+            <div class="admin-section">
+                <h2>User Management</h2>
+                <div class="user-management">
+                    <div class="search-container">
+                        <input type="text" id="user-search" placeholder="Search users...">
+                        <button onclick="searchUsers()">Search</button>
+                    </div>
+                    <div id="users-list" class="users-container">
+                        <!-- Users will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category Management Section -->
+            <div class="admin-section">
+                <h2>Category Management</h2>
+                <div class="category-management">
+                    <div class="add-category-form">
+                        <input type="text" id="new-category-title" placeholder="Category title..." maxlength="50">
+                        <textarea id="new-category-description" placeholder="Category description..." maxlength="200"></textarea>
+                        <button onclick="addCategory()">Add Category</button>
+                    </div>
+                    <div id="categories-list" class="categories-container">
+                        <!-- Categories will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Moderation Requests Section -->
+            <div class="admin-section">
+                <h2>Moderation Requests</h2>
+                <div id="moderation-requests" class="requests-container">
+                    <!-- Moderation requests will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Post Reports Section -->
+            <div class="admin-section">
+                <h2>Post Reports</h2>
+                <div id="post-reports" class="reports-container">
+                    <!-- Post reports will be loaded here -->
+                </div>
+            </div>
+        </div>
+
     </div>
     <script src="../scripts/Page.js"></script>
     <script src="../scripts/navigation.js"></script>
@@ -292,5 +412,10 @@
     <script src="../scripts/fetchComments.js"></script>
     <script src="../scripts/fetchCategory.js"></script>
     <script src="../scripts/fetchProfile.js"></script>
+    <script src="../scripts/fetchActivity.js"></script>
+    <script src="../scripts/manageContent.js"></script>
+    <script src="../scripts/AdminDashboard.js"></script>
+    <script src="../scripts/PostFormHandler.js"></script>
+    <script src="../scripts/LoadCategories.js"></script>
 </body>
 </html>
