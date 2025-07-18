@@ -53,7 +53,3 @@ This is a simple single-paged web forum application built with Go, javascript, S
 [@musabt AKA:MAISTRY](https://learn.reboot01.com/git/musabt)
 
 [@mmahmooda AKA:KASIKO](https://learn.reboot01.com/git/mmahmooda)
-
-[@alimarhoon AKA:NBX](https://learn.reboot01.com/git/alimarhoon)
-
-[@malmannai AKA:mvniraa](https://learn.reboot01.com/git/malmannai)
